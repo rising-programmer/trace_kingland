@@ -353,13 +353,13 @@ echoColor "\___ \    | |     / _ \   | |_) |   | |  "
 echoColor " ___) |   | |    / ___ \  |  _ <    | |  "
 echoColor "|____/    |_|   /_/   \_\ |_| \_\   |_|  "
 
-#updateOS
-#installPreDependence
-#installGolang
-#installNode
-#installDocker
-#downloadImages
-downloadBinaries
+updateOS
+installPreDependence
+installGolang
+installNode
+installDocker
+downloadImages
+#downloadBinaries
 
 echoColor " _____   _   _   ____   "
 echoColor "| ____| | \ | | |  _ \  "
