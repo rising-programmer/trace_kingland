@@ -101,11 +101,59 @@ let save = function (req, res) {
         args[6] = data[i].deviceId || "";
         args[7] = username;
         args[8] = orgName;
-        let invokePromise = invoke.invokeChaincode(peersUrls, channelName, chaincodeName, functionName, args, username, orgName).then(message => {
+        let invokePromise = invoke.invokeChaincode(peersUrls, channelName, chaincodeName, functionName, args, username, orgName,true).then(message => {
             ret.push(message);
         });
         promises.push(invokePromise);
     }
+    Promise.all(promises).then(message => {
+        res.json(reqUtils.getResponse("操作成功",200,ret));
+    }).catch(err => {
+        res.json(reqUtils.getErrorMsg(err.message));
+    });
+};
+
+
+/**
+ * 数据上链接口
+ * @param req
+ * @param res
+ */
+let saveJson = function (req, res) {
+    let id = req.body.id;
+    let sendData = req.body.sendData;
+    //通道名称，默认mychannel
+    let channelName = req.body.channelName || "mychannel";
+    //智能合约名称，默认kingland
+    let chaincodeName = req.body.chaincodeName || "kingland";
+    //peer节点url
+    let peersUrls = req.body.peersUrls || ["peer0.org1.kingland.com"];
+    //智能合约方法名
+    let functionName = req.body.functionName || "saveJson";
+    //用户
+    let username = req.username;
+    //组织
+    let orgName = req.orgname;
+    //数据检查
+    if(reqUtils.isEmpty(id)){
+        throw new errors.SystemError("id argument must be a non-empty string");
+    }
+    if(reqUtils.isEmpty(sendData)){
+        throw new errors.SystemError("sendData argument must be a non-empty string");
+    }
+    let args = [];
+    args[0] = id;
+    args[1] = JSON.stringify(sendData);
+
+    //返回值
+    let promises = [];
+    let ret = [];
+
+    let invokePromise = invoke.invokeChaincode(peersUrls, channelName, chaincodeName, functionName, args, username, orgName).then(message => {
+        ret.push(message);
+    });
+    promises.push(invokePromise);
+
     Promise.all(promises).then(message => {
         res.json(reqUtils.getResponse("操作成功",200,ret));
     }).catch(err => {
@@ -164,8 +212,10 @@ let query = async function (req,res) {
     args.use_index = ["_design/indexTimestampDoc","indexTimestamp"];
     args.sort = [{"objectType":"asc"},{"timestamp": "asc"}];
     args.fields = ["objectType","hash","id","timestamp","blockId","deviceId","transactionId"];
+    let arr = [];
+    arr[0] = JSON.stringify(args);
     try {
-        let datas = await queryUtil.queryChaincode(peer,channelName,chaincodeName,args,fcn,req.username,req.orgname);
+        let datas = await queryUtil.queryChaincode(peer,channelName,chaincodeName,arr,fcn,req.username,req.orgname);
         let ret = [];
         if(!reqUtils.isEmpty(datas)){
             datas = JSON.parse(datas);
@@ -174,6 +224,30 @@ let query = async function (req,res) {
             }
         }
         res.send(reqUtils.getResponse("操作成功",200,ret));
+    }catch (error){
+        res.send(reqUtils.getErrorMsg(error.message));
+    }
+};
+
+/**
+ * 数据查询
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+let queryJson = async function (req,res) {
+    let peer = req.body.peer || "peer0.org1.kingland.com";
+    let chaincodeName = req.body.chaincodeName || "kingland";
+    let channelName = req.body.channelName || "mychannel";
+    let fcn = "queryJson";
+    //主键
+    let id = req.body.id;
+
+    let args = [];
+    args[0] = id;
+    try {
+        let datas = await queryUtil.queryChaincode(peer,channelName,chaincodeName,args,fcn,req.username,req.orgname);
+        res.send(JSON.parse(datas));
     }catch (error){
         res.send(reqUtils.getErrorMsg(error.message));
     }
@@ -515,5 +589,7 @@ let  queryByTransactionIds = async function (txIds){
 exports.queryByTransactionId = queryByTransactionId;
 exports.hashVerify = hashVerify;
 exports.save = save;
+exports.saveJson = saveJson;
 exports.query = query;
+exports.queryJson = queryJson;
 exports.queryWithPagination = queryWithPagination;

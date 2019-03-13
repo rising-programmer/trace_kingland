@@ -67,7 +67,6 @@ app.use(function(req, res, next) {
     if (req.originalUrl.indexOf('/api/v1/token') >= 0) {
         return next();
     }
-    var a = "";
     var token = req.token;
     jwt.verify(token, app.get('secret'), function(err, decoded) {
         if (err) {
@@ -90,7 +89,9 @@ app.use(function(req, res, next) {
 });
 
 app.post("/api/v1/save",sdkUtils.save);
+app.post("/api/v1/saveJson",sdkUtils.saveJson);
 app.post("/api/v1/query",sdkUtils.query);
+app.post("/api/v1/queryJson",sdkUtils.queryJson);
 app.post("/api/v1/hashVerify",sdkUtils.hashVerify);
 app.post("/api/v1/queryByTransactionId",sdkUtils.queryByTransactionId);
 app.post("/api/v1/queryWithPagination",sdkUtils.queryWithPagination);

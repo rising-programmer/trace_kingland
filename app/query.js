@@ -32,14 +32,14 @@ var queryChaincode = async function(peer, channelName, chaincodeName, args, fcn,
 			throw new Error(message);
 		}
 
-		let array = [];
-		array[0] = JSON.stringify(args);
+		// let array = [];
+		// array[0] = JSON.stringify(args);
 		// send query
 		var request = {
 			targets : [peer], //queryByChaincode allows for multiple targets
 			chaincodeId: chaincodeName,
 			fcn: fcn,
-			args: array
+			args: args
 		};
 		let response_payloads = await channel.queryByChaincode(request);
 		console.log(response_payloads.toString());

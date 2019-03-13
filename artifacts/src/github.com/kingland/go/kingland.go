@@ -72,10 +72,51 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.save(stub, args)
 	} else if function == "query" { //find Data based on an ad hoc rich query
 		return t.query(stub, args)
+	} else if function == "saveJson" { //find Data based on an ad hoc rich query
+		return t.saveJson(stub, args)
+	} else if function == "queryJson" { //find Data based on an ad hoc rich query
+		return t.queryJson(stub, args)
 	}
 
 	fmt.Println("invoke did not find func: " + function) //error
 	return shim.Error("Received unknown function invocation")
+}
+
+func (t *SimpleChaincode) saveJson(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+	var id string = args[0]        //数据表简单主键
+	var argStr string = args[1]    //json字符串
+	b := []byte(argStr)        	   //存入链中的内容
+	var err error
+
+	//将json数据写入区块链
+	err = stub.PutState(id, b)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
+}
+
+// query callback representing the query of a chaincode
+func (t *SimpleChaincode) queryJson(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	var err error
+
+	var key string = args[0]   //主键
+	var objByte []byte         //存入链中的内容
+
+	objByte, err = stub.GetState(key)
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if objByte == nil {
+		jsonResp := "{\"Error\":\"Nil context for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	return shim.Success(objByte)
 }
 
 // ============================================================

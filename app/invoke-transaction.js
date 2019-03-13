@@ -5,7 +5,7 @@ var hfc = require('fabric-client');
 var helper = require('./helper.js');
 var logger = helper.getLogger('invoke-chaincode');
 
-var invokeChaincode = async function(peerNames, channelName, chaincodeName, fcn, args, username, org_name) {
+var invokeChaincode = async function(peerNames, channelName, chaincodeName, fcn, args, username, org_name, needTxId) {
     logger.debug(util.format('\n============ invoke transaction on channel %s ============\n', channelName));
     var error_message = null;
     var tx_id_string = null;
@@ -24,7 +24,10 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, fcn,
         var tx_id = client.newTransactionID();
         // will need the transaction ID string for the event registration later
         tx_id_string = tx_id.getTransactionID();
-        args[4] = tx_id_string;
+        if(needTxId && needTxId === true){
+            args[4] = tx_id_string;
+        }
+        console.log("args==>"+JSON.stringify(args));
         // send proposal to endorser
         var request = {
             targets: peerNames,
@@ -153,8 +156,10 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, fcn,
             org_name, channelName, tx_id_string);
         logger.info(message);
         let retJson = {};
-        retJson.objectType = objectType;
-        retJson.id = id;
+        if(needTxId){
+            retJson.objectType = objectType;
+            retJson.id = id;
+        }
         retJson.transactionId = tx_id_string;
         return retJson;
     } else {
