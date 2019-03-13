@@ -131,9 +131,9 @@ let saveJson = function (req, res) {
     //智能合约方法名
     let functionName = req.body.functionName || "saveJson";
     //用户
-    let username = req.username;
+    let username = req.username || 'admin';
     //组织
-    let orgName = req.orgname;
+    let orgName = req.orgname || 'Org1';
     //数据检查
     if(reqUtils.isEmpty(id)){
         throw new errors.SystemError("id argument must be a non-empty string");
@@ -246,7 +246,7 @@ let queryJson = async function (req,res) {
     let args = [];
     args[0] = id;
     try {
-        let datas = await queryUtil.queryChaincode(peer,channelName,chaincodeName,args,fcn,req.username,req.orgname);
+        let datas = await queryUtil.queryChaincode(peer,channelName,chaincodeName,args,fcn,req.username||'admin',req.orgname||'Org1');
         res.send(JSON.parse(datas));
     }catch (error){
         res.send(reqUtils.getErrorMsg(error.message));

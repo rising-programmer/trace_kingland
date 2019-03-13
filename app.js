@@ -54,39 +54,39 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 // set secret variable
-app.set('secret', 'thisismysecret');
-app.use(expressJWT({
-    secret: 'thisismysecret'
-}).unless({
-    path: ['/api/v1/token']
-}));
-app.use(bearerToken());
-app.use(function(req, res, next) {
-    logger.info(' ------>>>>>> new request for %s',req.originalUrl);
-    logger.info('------->>>>>> request params %s',JSON.stringify(req.body));
-    if (req.originalUrl.indexOf('/api/v1/token') >= 0) {
-        return next();
-    }
-    var token = req.token;
-    jwt.verify(token, app.get('secret'), function(err, decoded) {
-        if (err) {
-            res.send({
-                success: false,
-                message: 'Failed to authenticate token. Make sure to include the ' +
-                'token returned from /api/v1/token call in the authorization header ' +
-                ' as a Bearer token'
-            });
-            return;
-        } else {
-            // add the decoded user name and org name to the request object
-            // for the downstream code to use
-            req.username = decoded.username;
-            req.orgname = decoded.orgName;
-            logger.debug(util.format('Decoded from JWT token: username - %s, orgname - %s', decoded.username, decoded.orgName));
-            return next();
-        }
-    });
-});
+// app.set('secret', 'thisismysecret');
+// app.use(expressJWT({
+//     secret: 'thisismysecret'
+// }).unless({
+//     path: ['/api/v1/token']
+// }));
+// app.use(bearerToken());
+// app.use(function(req, res, next) {
+//     logger.info(' ------>>>>>> new request for %s',req.originalUrl);
+//     logger.info('------->>>>>> request params %s',JSON.stringify(req.body));
+//     if (req.originalUrl.indexOf('/api/v1/token') >= 0) {
+//         return next();
+//     }
+//     var token = req.token;
+//     jwt.verify(token, app.get('secret'), function(err, decoded) {
+//         if (err) {
+//             res.send({
+//                 success: false,
+//                 message: 'Failed to authenticate token. Make sure to include the ' +
+//                 'token returned from /api/v1/token call in the authorization header ' +
+//                 ' as a Bearer token'
+//             });
+//             return;
+//         } else {
+//             // add the decoded user name and org name to the request object
+//             // for the downstream code to use
+//             req.username = decoded.username;
+//             req.orgname = decoded.orgName;
+//             logger.debug(util.format('Decoded from JWT token: username - %s, orgname - %s', decoded.username, decoded.orgName));
+//             return next();
+//         }
+//     });
+// });
 
 app.post("/api/v1/save",sdkUtils.save);
 app.post("/api/v1/saveJson",sdkUtils.saveJson);
